@@ -1,0 +1,85 @@
+java
+import java.util.*;
+
+class Song {
+    String name;
+    String artist;
+    Date lastPlayed;
+
+    public Song(String name, String artist, Date lastPlayed) {
+        this.name = name;
+        this.artist = artist;
+        this.lastPlayed = lastPlayed;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public Date getLastPlayed() {
+        return lastPlayed;
+    }
+}
+
+class User {
+    String name;
+    List<Song> recentlyPlayed;
+
+    public User(String name) {
+        this.name = name;
+        this.recentlyPlayed = new ArrayList<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<Song> getRecentlyPlayed() {
+        return recentlyPlayed;
+    }
+
+    public void addSong(Song song) {
+        recentlyPlayed.add(song);
+    }
+
+    public void removeLeastRecentlyPlayed(int maxSongs) {
+        if (recentlyPlayed.size() > maxSongs) {
+            recentlyPlayed.sort((s1, s2) -> s1.getLastPlayed().compareTo(s2.getLastPlayed()));
+            recentlyPlayed.subList(0, recentlyPlayed.size() - maxSongs).clear();
+        }
+    }
+}
+
+class SongStore {
+    int maxSongs;
+    int capacity;
+    Map<String, User> users;
+
+    public SongStore(int maxSongs, int capacity) {
+        this.maxSongs = maxSongs;
+        this.capacity = capacity;
+        this.users = new HashMap<>(capacity);
+    }
+
+    public void addSong(String username, Song song) {
+        User user = users.get(username);
+        if (user == null) {
+            user = new User(username);
+            users.put(username, user);
+        }
+        user.addSong(song);
+        user.removeLeastRecentlyPlayed(maxSongs);
+    }
+
+    public List<Song> getRecentlyPlayed(String username) {
+        User user = users.get(username);
+        if (user == null) {
+            return Collections.emptyList();
+        }
+        return user.getRecentlyPlayed();
+    }
+}
